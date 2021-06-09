@@ -1,0 +1,56 @@
+name: Latest
+
+on:
+  push:
+    paths:
+      - .github/workflows/build.yml
+      - "**.go"
+      - "!examples/"
+      - .dockerignore
+      - Dockerfile
+      - .golangci.yml
+      - go.mod
+      - go.sum
+  pull_request:
+    paths:
+      - .github/workflows/build.yml
+      - "**.go"
+      - "!examples/"
+      - .dockerignore
+      - Dockerfile
+      - .golangci.yml
+      - go.mod
+      - go.sum
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: "1"
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - name: Build base image
+        run: docker build --target base -t base .
+
+      - name: Linting
+        run: docker build --target lint .
+
+      - name: Go mod tidy check
+        run: docker build --target tidy .
+
+      - name: Build test image
+        run: docker build --target test -t test-container .
+
+      - name: Run tests in test container
+        run: |
+          touch coverage.txt
+          docker run --rm \
+          -v "$(pwd)/coverage.txt:/tmp/gobuild/coverage.txt" \
+          test-container \
+          go test \
+          -race \
+          -coverpkg=./... \
+          -coverprofile=coverage.txt \
+          -covermode=atomic \
+          ./...
