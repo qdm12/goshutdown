@@ -1,6 +1,8 @@
 # `goshutdown`
 
-`goshutdown` is a Go library to gracefully shutdown your program, following a certain order.
+<img height="250" src="https://raw.githubusercontent.com/qdm12/goshutdown/main/title.svg?sanitize=true">
+
+`goshutdown` is a library to gracefully shutdown your goroutines in your Go program.
 
 ## Context
 
@@ -13,7 +15,7 @@ Having seen bad program designs, from worst to less bad:
 - Hanging shutdowns when waiting for goroutines to complete
 - Exiting all goroutines at the same time when cancelling a shared `context.Context`, when a shutdown order should be needed
 - Waiting for all goroutines to finish using a single waitgroup `wg` with `wg.Wait()`
-- Waiting on multiple `done` signal channels where one could block other from being canceled
+- Waiting on multiple `done` signal channels where one could block others from being canceled
 
 I decided to write this library to ease the task in all `main.go`'s `main()` functions.
 
