@@ -9,6 +9,7 @@ import (
 
 //go:generate mockgen -destination=mock_$GOPACKAGE/$GOFILE . Handler
 
+// Handler handles a goroutine shutdown handler.
 type Handler interface {
 	// Name returns the name set for this goroutine.
 	Name() string

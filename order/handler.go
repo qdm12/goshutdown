@@ -11,6 +11,7 @@ import (
 
 //go:generate mockgen -destination=mock_$GOPACKAGE/$GOFILE . Handler
 
+// Handler handles an order of shutdown handlers.
 type Handler interface {
 	// Name returns the name set for this order handler.
 	Name() string
