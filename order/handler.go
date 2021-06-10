@@ -15,7 +15,7 @@ import (
 type Handler interface {
 	// Name returns the name set for this order handler.
 	Name() string
-	// IsCritical returs true if the order handler is critical and must be terminated
+	// IsCritical returns true if the order handler is critical and must be terminated
 	// before continuing other external shutdown procedures.
 	IsCritical() bool
 	// Shutdown initiates the shutdown process, starting with the start of the order

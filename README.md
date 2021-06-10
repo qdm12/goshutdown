@@ -5,7 +5,7 @@
 ## Context
 
 Since Go program are often running multiple goroutines, it is important to shut them down gracefully when the program exits.
-Not doing so can result in a loss of data for example, and it's generally good practice to carefully manage the lifecyle of each goroutine and your entire program as a consequence.
+Not doing so can result in a loss of data for example, and it's generally a good practice to carefully manage the lifecycle of each goroutine and your entire program as a consequence.
 
 Having seen bad program designs, from worst to less bad:
 
