@@ -1,5 +1,3 @@
-# `goshutdown`
-
 <img height="250" src="https://raw.githubusercontent.com/qdm12/goshutdown/main/title.svg?sanitize=true">
 
 `goshutdown` is a library to gracefully shutdown your goroutines in your Go program.
