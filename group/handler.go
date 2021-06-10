@@ -16,7 +16,7 @@ import (
 type Handler interface {
 	// Name returns the name set for this group handler.
 	Name() string
-	// IsCritical returs true if the group of goroutines handler is critical
+	// IsCritical returns true if the group of goroutines handler is critical
 	// and must be terminated before continuing other external shutdown procedures.
 	IsCritical() bool
 	// Shutdown initiates the shutdown process for all the goroutines of the group in parallel.

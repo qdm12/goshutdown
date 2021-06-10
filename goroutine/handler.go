@@ -13,7 +13,7 @@ import (
 type Handler interface {
 	// Name returns the name set for this goroutine.
 	Name() string
-	// IsCritical returs true if the goroutine is critical and must be terminated.
+	// IsCritical returns true if the goroutine is critical and must be terminated.
 	IsCritical() bool
 	// Shutdown shuts a goroutine down by canceling its associated context.
 	// It then waits for the goroutine to close its done signal channel.
