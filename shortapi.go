@@ -33,7 +33,7 @@ func NewGroupHandler(name string, settings group.Settings) group.Handler {
 	return group.New(name, settings)
 }
 
-// NewOrder creates a new order handler using the name and settings given.
-func NewOrder(name string, settings order.Settings) order.Handler {
+// NewOrderHandler creates a new order handler using the name and settings given.
+func NewOrderHandler(name string, settings order.Settings) order.Handler {
 	return order.New(name, settings)
 }

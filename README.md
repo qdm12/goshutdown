@@ -163,7 +163,7 @@ import (
 )
 
 func main() {
-	order := goshutdown.NewOrder("order", goshutdown.OrderSettings{})
+	order := goshutdown.NewOrderHandler("order", goshutdown.OrderSettings{})
 
 	handlerA, ctxA, doneA := goshutdown.NewGoRoutineHandler("functionA", goshutdown.GoRoutineSettings{})
 	go functionA(ctxA, doneA)
@@ -186,6 +186,8 @@ func functionA(ctx context.Context, done chan<- struct{}) {
 
 - The code is fully test covered by unit and integrationt tests
 - The code is linted using `golangci-lint` with almost all its linters activated
+- It is already in use in multiple Go projects with thousands of users:
+  - [gluetun](https://github.com/qdm12/gluetun)
 - You can use generated mocks (with [github.com/golang/mock](https://github.com/golang/mock)) for your own tests with for example
 
     ```go

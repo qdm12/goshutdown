@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	order := goshutdown.NewOrder("order", goshutdown.OrderSettings{})
+	order := goshutdown.NewOrderHandler("order", goshutdown.OrderSettings{})
 
 	handlerA, ctxA, doneA := goshutdown.NewGoRoutineHandler("functionA", goshutdown.GoRoutineSettings{})
 	go functionA(ctxA, doneA)
