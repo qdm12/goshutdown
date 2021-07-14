@@ -19,6 +19,9 @@ FROM base AS test
 # - we install g++ to support the race detector
 ENV CGO_ENABLED=1
 RUN apk --update --no-cache add g++
+ENTRYPOINT go test -race -coverpkg=./... \
+  -coverprofile=coverage.txt \
+  -covermode=atomic ./...
 
 FROM base AS lint
 RUN golangci-lint run --timeout=10m
