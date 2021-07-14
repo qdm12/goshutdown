@@ -16,9 +16,8 @@ COPY . .
 FROM base AS test
 # Note on the go race detector:
 # - we set CGO_ENABLED=1 to have it enabled
-# - we install g++ to support the race detector
+# - we installed g++ to support the race detector
 ENV CGO_ENABLED=1
-RUN apk --update --no-cache add g++
 ENTRYPOINT go test -race -coverpkg=./... \
   -coverprofile=coverage.txt \
   -covermode=atomic ./...
