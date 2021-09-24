@@ -1,4 +1,4 @@
-<img height="250" src="https://raw.githubusercontent.com/qdm12/goshutdown/main/title.svg?sanitize=true">
+<img height="250" src="https://raw.githubusercontent.com/qdm12/goshutdown/main/title.svg">
 
 `goshutdown` is a library to gracefully shutdown your goroutines in your Go program.
 
@@ -37,60 +37,60 @@ Our shutdown order is given a 3 seconds timeout, and each of our goroutine shutd
 package main
 
 import (
-	"context"
-	"log"
-	"time"
+    "context"
+    "log"
+    "time"
 
-	"github.com/qdm12/goshutdown/goroutine"
-	"github.com/qdm12/goshutdown/order"
+    "github.com/qdm12/goshutdown/goroutine"
+    "github.com/qdm12/goshutdown/order"
 )
 
 func main() {
-	const orderTimeout = 3 * time.Second
-	orderSettings := order.Settings{
-		Timeout:   orderTimeout,
-		OnSuccess: func(name string) { log.Println(name + " terminated 🙌") },
-		OnFailure: func(name string, err error) { log.Println(name + " did not terminate 😱: " + err.Error()) },
-	}
-	order := order.New("order", orderSettings)
+    const orderTimeout = 3 * time.Second
+    orderSettings := order.Settings{
+        Timeout:   orderTimeout,
+        OnSuccess: func(name string) { log.Println(name + " terminated 🙌") },
+        OnFailure: func(name string, err error) { log.Println(name + " did not terminate 😱: " + err.Error()) },
+    }
+    order := order.New("order", orderSettings)
 
-	handlerA, ctxA, doneA := goroutine.New("badDeadlock", goroutine.Settings{})
-	go badDeadlock(ctxA, doneA)
-	order.Append(handlerA)
+    handlerA, ctxA, doneA := goroutine.New("badDeadlock", goroutine.Settings{})
+    go badDeadlock(ctxA, doneA)
+    order.Append(handlerA)
 
-	handlerB, ctxB, doneB := goroutine.New("goodCleanup", goroutine.Settings{})
-	go goodCleanup(ctxB, doneB)
-	order.Append(handlerB)
+    handlerB, ctxB, doneB := goroutine.New("goodCleanup", goroutine.Settings{})
+    go goodCleanup(ctxB, doneB)
+    order.Append(handlerB)
 
-	// do stuff, wait for OS signals etc.
+    // do stuff, wait for OS signals etc.
 
-	err := order.Shutdown(context.Background())
-	if err != nil {
-		log.Println(err)
-	}
+    err := order.Shutdown(context.Background())
+    if err != nil {
+        log.Println(err)
+    }
 }
 
 func badDeadlock(ctx context.Context, done chan<- struct{}) {
-	defer close(done)
-	<-ctx.Done()
-	log.Println("😤 not exiting")
-	theDeadLock := make(chan struct{})
-	<-theDeadLock
+    defer close(done)
+    <-ctx.Done()
+    log.Println("😤 not exiting")
+    theDeadLock := make(chan struct{})
+    <-theDeadLock
 }
 
 func goodCleanup(ctx context.Context, done chan<- struct{}) {
-	defer close(done)
-	<-ctx.Done()
-	const ioTime = 500 * time.Millisecond
-	log.Println("📤 doing some IO cleanup for " + ioTime.String())
-	time.Sleep(ioTime)
+    defer close(done)
+    <-ctx.Done()
+    const ioTime = 500 * time.Millisecond
+    log.Println("📤 doing some IO cleanup for " + ioTime.String())
+    time.Sleep(ioTime)
 }
 
 ```
 
 The following is logged:
 
-```
+```log
 2021/06/09 15:13:55 😤 not exiting
 2021/06/09 15:13:56 badDeadlock did not terminate 😱: goroutine shutdown timed out: after 1s
 2021/06/09 15:13:56 📤 doing some IO cleanup for 500ms
@@ -120,13 +120,13 @@ Each of these 3 handlers implement the [`handler.Handler`](handler/handler.go) i
 ```go
 // Handler is the minimal common interface for shutdown items.
 type Handler interface {
-	// Name returns the name assigned to the handler.
-	Name() string
-	// IsCritical returns true if the shutdown process is critical and further
-	// operations should be dropped it it cannot be done.
-	IsCritical() bool
-	// Shutdown initiates the shutdown process and returns an error if it fails.
-	Shutdown(ctx context.Context) (err error)
+    // Name returns the name assigned to the handler.
+    Name() string
+    // IsCritical returns true if the shutdown process is critical and further
+    // operations should be dropped it it cannot be done.
+    IsCritical() bool
+    // Shutdown initiates the shutdown process and returns an error if it fails.
+    Shutdown(ctx context.Context) (err error)
 }
 ```
 
@@ -148,7 +148,7 @@ What is available to `group.Handler` and `order.Handler` only:
 
 ### Save on imports
 
-If you feel like you have too many import statements for this library, you can just import `"github.com/qdm12/goshutdown"` which has functions and type aliases to the `goroutine`, `order` and `group` subpackages. 
+If you feel like you have too many import statements for this library, you can just import `"github.com/qdm12/goshutdown"` which has functions and type aliases to the `goroutine`, `order` and `group` subpackages.
 
 For example:
 
@@ -156,28 +156,28 @@ For example:
 package main
 
 import (
-	"context"
-	"log"
+    "context"
+    "log"
 
-	"github.com/qdm12/goshutdown"
+    "github.com/qdm12/goshutdown"
 )
 
 func main() {
-	order := goshutdown.NewOrderHandler("order", goshutdown.OrderSettings{})
+    order := goshutdown.NewOrderHandler("order", goshutdown.OrderSettings{})
 
-	handlerA, ctxA, doneA := goshutdown.NewGoRoutineHandler("functionA", goshutdown.GoRoutineSettings{})
-	go functionA(ctxA, doneA)
-	order.Append(handlerA)
+    handlerA, ctxA, doneA := goshutdown.NewGoRoutineHandler("functionA", goshutdown.GoRoutineSettings{})
+    go functionA(ctxA, doneA)
+    order.Append(handlerA)
 
-	err := order.Shutdown(context.Background())
-	if err != nil {
-		log.Println(err)
-	}
+    err := order.Shutdown(context.Background())
+    if err != nil {
+        log.Println(err)
+    }
 }
 
 func functionA(ctx context.Context, done chan<- struct{}) {
-	defer close(done)
-	<-ctx.Done()
+    defer close(done)
+    <-ctx.Done()
 }
 
 ```
