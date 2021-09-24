@@ -7,20 +7,21 @@ issues:
     - path: _test\.go
       linters:
         - dupl
-        - maligned
         - goerr113
 
 linters:
-  disable-all: true
   enable:
     - asciicheck
     - bodyclose
-    - deadcode
+    - cyclop
     - dogsled
     - dupl
-    - errcheck
+    - durationcheck
+    - errname
+    - errorlint
     - exhaustive
     - exportloopref
+    - forcetypeassert
     - gci
     - gochecknoglobals
     - gochecknoinits
@@ -33,15 +34,13 @@ linters:
     - goheader
     - goimports
     - gomnd
+    - gomoddirectives
     - goprintffuncname
     - gosec
-    - gosimple
-    - govet
     - importas
-    - ineffassign
+    - importas
     - lll
     - makezero
-    - maligned
     - misspell
     - nakedret
     - nestif
@@ -50,19 +49,18 @@ linters:
     - nolintlint
     - prealloc
     - predeclared
+    - predeclared
+    - promlinter
     - revive
     - rowserrcheck
     - sqlclosecheck
-    - staticcheck
-    - structcheck
     - thelper
     - tparallel
-    - typecheck
     - unconvert
     - unparam
-    - unused
-    - varcheck
+    - wastedassign
     - whitespace
+    - wrapcheck
 
 run:
   skip-dirs:
