@@ -77,7 +77,7 @@ func (h *handler) Shutdown(ctx context.Context) (err error) {
 		if h.settings.Timeout > 0 && !timer.Stop() {
 			<-timer.C
 		}
-		return ctx.Err()
+		return ctx.Err() //nolint:wrapcheck
 	case <-timer.C:
 		return fmt.Errorf("%w: after %s", ErrTimeout, h.settings.Timeout)
 	}
