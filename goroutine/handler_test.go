@@ -10,17 +10,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func Test_Handler(t *testing.T) {
+	t.Parallel()
+
+	h, ctx, done := New("name", OptionTimeout(time.Hour))
+
+	go func(ctx context.Context) {
+		defer close(done)
+		<-ctx.Done()
+	}(ctx)
+
+	err := h.Shutdown(context.Background())
+	require.NoError(t, err)
+}
+
 func Test_New(t *testing.T) {
 	t.Parallel()
 
 	const name = "routine name"
-	const timeout = time.Second
-	settings := Settings{
-		Timeout:  timeout,
-		Critical: true,
-	}
 
-	intf, ctx, done := New(name, settings)
+	intf, ctx, done := New(name, OptionTimeout(time.Second), OptionCritical())
 
 	assert.NotNil(t, ctx)
 	assert.NotNil(t, done)
@@ -29,7 +38,12 @@ func Test_New(t *testing.T) {
 	require.True(t, ok)
 
 	assert.Equal(t, name, impl.name)
-	assert.Equal(t, settings, impl.settings)
+
+	expectedSettings := settings{
+		timeout:  time.Second,
+		critical: true,
+	}
+	assert.Equal(t, expectedSettings, impl.settings)
 	// cannot assert cancel and done as they are hidden away.
 }
 
@@ -49,7 +63,7 @@ func Test_handler_IsCritical(t *testing.T) {
 	const critical = true
 
 	h := &handler{
-		settings: Settings{Critical: critical},
+		settings: settings{critical: critical},
 	}
 	c := h.IsCritical()
 
@@ -69,8 +83,8 @@ func Test_handler_Shutdown(t *testing.T) {
 		h := &handler{
 			cancel: func() {},
 			done:   done,
-			settings: Settings{
-				Timeout: time.Hour,
+			settings: settings{
+				timeout: time.Hour,
 			},
 		}
 
@@ -88,8 +102,8 @@ func Test_handler_Shutdown(t *testing.T) {
 		h := &handler{
 			cancel: func() {},
 			done:   nil,
-			settings: Settings{
-				Timeout: time.Hour,
+			settings: settings{
+				timeout: time.Hour,
 			},
 		}
 
@@ -107,8 +121,8 @@ func Test_handler_Shutdown(t *testing.T) {
 		h := &handler{
 			cancel: func() {},
 			done:   nil,
-			settings: Settings{
-				Timeout: time.Nanosecond,
+			settings: settings{
+				timeout: time.Nanosecond,
 			},
 		}
 
@@ -129,8 +143,8 @@ func Test_handler_Shutdown(t *testing.T) {
 		h := &handler{
 			cancel: func() {},
 			done:   done,
-			settings: Settings{
-				Timeout: time.Hour,
+			settings: settings{
+				timeout: time.Hour,
 			},
 		}
 

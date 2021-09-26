@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	goroutine "github.com/qdm12/goshutdown/goroutine"
+	handler "github.com/qdm12/goshutdown/handler"
 )
 
 // MockHandler is a mock of Handler interface.
@@ -36,30 +36,19 @@ func (m *MockHandler) EXPECT() *MockHandlerMockRecorder {
 }
 
 // Add mocks base method.
-func (m *MockHandler) Add(arg0 goroutine.Handler) {
+func (m *MockHandler) Add(arg0 ...handler.Handler) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Add", arg0)
+	varargs := []interface{}{}
+	for _, a := range arg0 {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Add", varargs...)
 }
 
 // Add indicates an expected call of Add.
-func (mr *MockHandlerMockRecorder) Add(arg0 interface{}) *gomock.Call {
+func (mr *MockHandlerMockRecorder) Add(arg0 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockHandler)(nil).Add), arg0)
-}
-
-// CreateAndAdd mocks base method.
-func (m *MockHandler) CreateAndAdd(arg0 string, arg1 goroutine.Settings) (context.Context, chan<- struct{}) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateAndAdd", arg0, arg1)
-	ret0, _ := ret[0].(context.Context)
-	ret1, _ := ret[1].(chan<- struct{})
-	return ret0, ret1
-}
-
-// CreateAndAdd indicates an expected call of CreateAndAdd.
-func (mr *MockHandlerMockRecorder) CreateAndAdd(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAndAdd", reflect.TypeOf((*MockHandler)(nil).CreateAndAdd), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockHandler)(nil).Add), arg0...)
 }
 
 // IsCritical mocks base method.

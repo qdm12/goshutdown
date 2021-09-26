@@ -24,9 +24,12 @@ type Handler interface {
 }
 
 // New creates a goroutine handler with a timeout if timeout > 0.
-func New(name string, settings Settings) (
+func New(name string, options ...Option) (
 	h Handler, ctx context.Context, done chan<- struct{}) {
-	settings.setDefaults()
+	settings := newSettings()
+	for _, option := range options {
+		option(&settings)
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	bidirectionalDone := make(chan struct{})
@@ -43,7 +46,7 @@ func New(name string, settings Settings) (
 
 type handler struct {
 	name     string
-	settings Settings
+	settings settings
 	cancel   context.CancelFunc
 	done     <-chan struct{}
 }
@@ -53,15 +56,15 @@ func (h *handler) Name() string {
 }
 
 func (h *handler) IsCritical() bool {
-	return h.settings.Critical
+	return h.settings.critical
 }
 
 // ErrTimeout is the error when the goroutine shutdown times out.
 var ErrTimeout = errors.New("goroutine shutdown timed out")
 
 func (h *handler) Shutdown(ctx context.Context) (err error) {
-	timer := time.NewTimer(h.settings.Timeout)
-	if h.settings.Timeout == 0 {
+	timer := time.NewTimer(h.settings.timeout)
+	if h.settings.timeout == 0 {
 		timer.Stop()
 	}
 
@@ -69,16 +72,16 @@ func (h *handler) Shutdown(ctx context.Context) (err error) {
 
 	select {
 	case <-h.done:
-		if h.settings.Timeout > 0 && !timer.Stop() {
+		if h.settings.timeout > 0 && !timer.Stop() {
 			<-timer.C
 		}
 		return nil
 	case <-ctx.Done():
-		if h.settings.Timeout > 0 && !timer.Stop() {
+		if h.settings.timeout > 0 && !timer.Stop() {
 			<-timer.C
 		}
 		return ctx.Err() //nolint:wrapcheck
 	case <-timer.C:
-		return fmt.Errorf("%w: after %s", ErrTimeout, h.settings.Timeout)
+		return fmt.Errorf("%w: after %s", ErrTimeout, h.settings.timeout)
 	}
 }

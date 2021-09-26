@@ -19,18 +19,17 @@ func Test_New(t *testing.T) {
 	t.Parallel()
 
 	const name = "name"
-	settings := Settings{}
 
 	expected := &orderHandler{
 		name: name,
-		settings: Settings{
-			Timeout:   time.Second,
-			OnSuccess: defaultOnSuccess,
-			OnFailure: defaultOnFailure,
+		settings: settings{
+			timeout:   time.Second,
+			onSuccess: defaultOnSuccess,
+			onFailure: defaultOnFailure,
 		},
 	}
 
-	intf := New(name, settings)
+	intf := New(name)
 
 	impl, ok := intf.(*orderHandler)
 	require.True(t, ok)
@@ -38,9 +37,6 @@ func Test_New(t *testing.T) {
 	assertSettingsEqual(t, &expected.settings, &impl.settings)
 
 	assert.Equal(t, expected, impl)
-
-	// Verify original passed settings are left unchanged
-	assert.Equal(t, Settings{}, settings)
 }
 
 func Test_orderHandler_Name(t *testing.T) {
@@ -60,7 +56,7 @@ func Test_orderHandler_IsCritical(t *testing.T) {
 	const critical = true
 
 	h := &orderHandler{
-		settings: Settings{Critical: critical},
+		settings: settings{critical: critical},
 	}
 	c := h.IsCritical()
 
@@ -82,25 +78,25 @@ func Test_orderHandler_Shutdown(t *testing.T) {
 		err                  error
 	}{
 		"no handler": {
-			o: New("order name", Settings{}),
+			o: New("order name"),
 		},
 		"single handler complete": {
-			o:                    New("order name", Settings{}),
+			o:                    New("order name"),
 			handlersReturnValues: []handlerReturnValues{{}},
 		},
 		"single handler failed": {
-			o: New("order name", Settings{}),
+			o: New("order name"),
 			handlersReturnValues: []handlerReturnValues{
 				{name: "name", err: goroutine.ErrTimeout},
 			},
 			err: errors.New("ordered shutdown timed out: name: goroutine shutdown timed out"),
 		},
 		"two handlers complete": {
-			o:                    New("order name", Settings{}),
+			o:                    New("order name"),
 			handlersReturnValues: []handlerReturnValues{{}, {}},
 		},
 		"two handlers with one failed": {
-			o: New("order name", Settings{}),
+			o: New("order name"),
 			handlersReturnValues: []handlerReturnValues{
 				{name: "name", err: goroutine.ErrTimeout},
 				{},
@@ -108,7 +104,7 @@ func Test_orderHandler_Shutdown(t *testing.T) {
 			err: errors.New("ordered shutdown timed out: name: goroutine shutdown timed out"),
 		},
 		"two handlers with first critical failed": {
-			o: New("order name", Settings{}),
+			o: New("order name"),
 			handlersReturnValues: []handlerReturnValues{
 				{name: "name", critical: true, err: goroutine.ErrTimeout},
 				{},

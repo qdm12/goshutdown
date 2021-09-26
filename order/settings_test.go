@@ -9,66 +9,38 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Settings_setDefaults(t *testing.T) {
+func Test_newSettings(t *testing.T) {
 	t.Parallel()
 
 	var (
-		errDummy  = errors.New("dummy")
-		onSuccess = func(groupName string) { _ = groupName }
-		onFailure = func(groupName string, err error) { _ = groupName }
+		errDummy = errors.New("dummy")
 	)
 
-	testCases := map[string]struct {
-		initial  Settings
-		expected Settings
-	}{
-		"default settings": {
-			expected: Settings{
-				Timeout:   time.Second,
-				OnSuccess: defaultOnSuccess,
-				OnFailure: defaultOnFailure,
-			},
-		},
-		"all-set settings": {
-			initial: Settings{
-				Timeout:   time.Minute,
-				OnSuccess: onSuccess,
-				OnFailure: onFailure,
-			},
-			expected: Settings{
-				Timeout:   time.Minute,
-				OnSuccess: onSuccess,
-				OnFailure: onFailure,
-			},
-		},
+	s := newSettings()
+
+	assert.NotPanics(t, func() {
+		s.onSuccess("group")
+		s.onFailure("group", errDummy)
+	})
+
+	expected := settings{
+		timeout:   time.Second,
+		onSuccess: defaultOnSuccess,
+		onFailure: defaultOnFailure,
 	}
 
-	for name, testCase := range testCases {
-		testCase := testCase
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
-			testCase.initial.setDefaults()
-
-			assert.NotPanics(t, func() {
-				testCase.initial.OnSuccess("group")
-				testCase.initial.OnFailure("group", errDummy)
-			})
-
-			assertSettingsEqual(t, &testCase.expected, &testCase.initial)
-		})
-	}
+	assertSettingsEqual(t, &expected, &s)
 }
 
 // asserts the Settings a and b are equal and clear the problematic fields
 // that cannot be asserted without reflect such as functions.
-func assertSettingsEqual(t *testing.T, a, b *Settings) {
+func assertSettingsEqual(t *testing.T, a, b *settings) {
 	t.Helper()
-	assert.Equal(t, reflect.ValueOf(a.OnFailure), reflect.ValueOf(b.OnFailure))
-	a.OnFailure, b.OnFailure = nil, nil
+	assert.Equal(t, reflect.ValueOf(a.onFailure), reflect.ValueOf(b.onFailure))
+	a.onFailure, b.onFailure = nil, nil
 
-	assert.Equal(t, reflect.ValueOf(a.OnSuccess), reflect.ValueOf(b.OnSuccess))
-	a.OnSuccess, b.OnSuccess = nil, nil
+	assert.Equal(t, reflect.ValueOf(a.onSuccess), reflect.ValueOf(b.onSuccess))
+	a.onSuccess, b.onSuccess = nil, nil
 
 	assert.Equal(t, a, b)
 }

@@ -18,18 +18,18 @@ func Test_New(t *testing.T) {
 	t.Parallel()
 
 	const name = "group name"
-	settings := Settings{
-		Timeout:   time.Second,
-		OnSuccess: defaultOnSuccess,
-		OnFailure: defaultOnFailure,
-	}
+	options := []Option{OptionTimeout(time.Hour)}
 
 	expected := &groupHandler{
-		name:     name,
-		settings: settings,
+		name: name,
+		settings: Settings{
+			Timeout:   time.Hour,
+			OnSuccess: defaultOnSuccess,
+			OnFailure: defaultOnFailure,
+		},
 	}
 
-	intf := New(name, settings)
+	intf := New(name, options...)
 
 	impl, ok := intf.(*groupHandler)
 	require.True(t, ok)

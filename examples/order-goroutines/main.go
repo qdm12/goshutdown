@@ -10,29 +10,21 @@ import (
 )
 
 func main() {
-	const orderTimeout = time.Second
-	orderSettings := order.Settings{
-		Timeout: orderTimeout,
-		OnSuccess: func(name string) {
-			log.Println(name + " terminated 🙌")
-		},
-		OnFailure: func(name string, err error) {
-			log.Println(name + " did not terminate 😱: " + err.Error())
-		},
-	}
-	order := order.New("order", orderSettings)
+	order := order.New("order",
+		order.OptionTimeout(time.Second),
+		order.OptionOnSuccess(func(name string) { log.Println(name + " terminated 🙌") }),
+		order.OptionOnFailure(func(name string, err error) { log.Println(name + " did not terminate 😱: " + err.Error()) }),
+	)
 
-	goroutineSettings := goroutine.Settings{}
-
-	handlerA, ctxA, doneA := goroutine.New("functionA", goroutineSettings)
+	handlerA, ctxA, doneA := goroutine.New("functionA")
 	go functionA(ctxA, doneA)
 	order.Append(handlerA)
 
-	handlerB, ctxB, doneB := goroutine.New("functionB", goroutineSettings)
+	handlerB, ctxB, doneB := goroutine.New("functionB")
 	go functionB(ctxB, doneB)
 	order.Append(handlerB)
 
-	handlerC, ctxC, doneC := goroutine.New("functionC", goroutineSettings)
+	handlerC, ctxC, doneC := goroutine.New("functionC")
 	go functionC(ctxC, doneC)
 	order.Append(handlerC)
 

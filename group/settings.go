@@ -18,17 +18,11 @@ type Settings struct {
 	OnFailure func(goRoutineName string, err error)
 }
 
-func (s *Settings) setDefaults() {
-	if s.Timeout == 0 {
-		s.Timeout = time.Second
-	}
-
-	if s.OnSuccess == nil {
-		s.OnSuccess = defaultOnSuccess
-	}
-
-	if s.OnFailure == nil {
-		s.OnFailure = defaultOnFailure
+func newSettings() Settings {
+	return Settings{
+		Timeout:   time.Second,
+		OnSuccess: defaultOnSuccess,
+		OnFailure: defaultOnFailure,
 	}
 }
 

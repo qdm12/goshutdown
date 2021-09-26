@@ -7,38 +7,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Settings_setDefaults(t *testing.T) {
+func Test_newSettings(t *testing.T) {
 	t.Parallel()
 
-	testCases := map[string]struct {
-		initial  Settings
-		expected Settings
-	}{
-		"default settings": {
-			expected: Settings{
-				Timeout: time.Second,
-			},
-		},
-		"all-set settings": {
-			initial: Settings{
-				Timeout:  time.Minute,
-				Critical: true,
-			},
-			expected: Settings{
-				Timeout:  time.Minute,
-				Critical: true,
-			},
-		},
+	s := newSettings()
+
+	expected := settings{
+		timeout: time.Second,
 	}
 
-	for name, testCase := range testCases {
-		testCase := testCase
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
-			testCase.initial.setDefaults()
-
-			assert.Equal(t, testCase.expected, testCase.initial)
-		})
-	}
+	assert.Equal(t, expected, s)
 }

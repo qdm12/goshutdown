@@ -10,29 +10,21 @@ import (
 )
 
 func main() {
-	const groupTimeout = time.Second
-	groupSettings := group.Settings{
-		Timeout: groupTimeout,
-		OnSuccess: func(name string) {
-			log.Println(name + " terminated 🙌")
-		},
-		OnFailure: func(name string, err error) {
-			log.Println(name + " did not terminate 😱: " + err.Error())
-		},
-	}
-	group := group.New("group", groupSettings)
+	group := group.New("group",
+		group.OptionTimeout(time.Second),
+		group.OptionOnSuccess(func(name string) { log.Println(name + " terminated 🙌") }),
+		group.OptionOnFailure(func(name string, err error) { log.Println(name + " did not terminate 😱: " + err.Error()) }),
+	)
 
-	goroutineSettings := goroutine.Settings{}
-
-	handlerA, ctxA, doneA := goroutine.New("functionA", goroutineSettings)
+	handlerA, ctxA, doneA := goroutine.New("functionA")
 	go functionA(ctxA, doneA)
 	group.Add(handlerA)
 
-	handlerB, ctxB, doneB := goroutine.New("functionB", goroutineSettings)
+	handlerB, ctxB, doneB := goroutine.New("functionB")
 	go functionB(ctxB, doneB)
 	group.Add(handlerB)
 
-	handlerC, ctxC, doneC := goroutine.New("functionC", goroutineSettings)
+	handlerC, ctxC, doneC := goroutine.New("functionC")
 	go functionC(ctxC, doneC)
 	group.Add(handlerC)
 

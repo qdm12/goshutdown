@@ -33,8 +33,12 @@ type groupHandler struct {
 	handlers []handler.Handler
 }
 
-func New(name string, settings Settings) Handler {
-	settings.setDefaults()
+func New(name string, options ...Option) Handler {
+	settings := newSettings()
+	for _, option := range options {
+		option(&settings)
+	}
+
 	return &groupHandler{
 		name:     name,
 		settings: settings,

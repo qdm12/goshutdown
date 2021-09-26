@@ -31,14 +31,18 @@ type Handler interface {
 
 type orderHandler struct {
 	name     string
-	settings Settings
+	settings settings
 	handlers []handler.Handler
 }
 
 // New creates a new shutdown Handler with the given settings.
 // Each field of settings is set to its default if left unset.
-func New(name string, settings Settings) Handler {
-	settings.setDefaults()
+func New(name string, options ...Option) Handler {
+	settings := newSettings()
+	for _, option := range options {
+		option(&settings)
+	}
+
 	return &orderHandler{
 		name:     name,
 		settings: settings,
@@ -50,7 +54,7 @@ func (h *orderHandler) Name() string {
 }
 
 func (h *orderHandler) IsCritical() bool {
-	return h.settings.Critical
+	return h.settings.critical
 }
 
 var (
@@ -61,7 +65,7 @@ var (
 )
 
 func (h *orderHandler) Shutdown(ctx context.Context) (err error) {
-	ctx, cancel := context.WithTimeout(ctx, h.settings.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, h.settings.timeout)
 	defer cancel()
 
 	var errorMessages []string //nolint:prealloc
@@ -71,11 +75,11 @@ func (h *orderHandler) Shutdown(ctx context.Context) (err error) {
 
 		err := handler.Shutdown(ctx)
 		if err == nil {
-			h.settings.OnSuccess(name)
+			h.settings.onSuccess(name)
 			continue
 		}
 
-		h.settings.OnFailure(name, err)
+		h.settings.onFailure(name, err)
 		if handler.IsCritical() {
 			return fmt.Errorf("%w: %s: %s", ErrCriticalTimeout, name, err)
 		}

@@ -9,56 +9,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Settings_setDefaults(t *testing.T) {
+func Test_newSettings(t *testing.T) {
 	t.Parallel()
 
-	var (
-		onSuccess = func(groupName string) { _ = groupName }
-		onFailure = func(groupName string, err error) { _ = groupName }
-	)
+	s := newSettings()
 
-	testCases := map[string]struct {
-		initial  Settings
-		expected Settings
-	}{
-		"default settings": {
-			expected: Settings{
-				Timeout:   time.Second,
-				OnSuccess: defaultOnSuccess,
-				OnFailure: defaultOnFailure,
-			},
-		},
-		"all-set settings": {
-			initial: Settings{
-				Timeout:   time.Minute,
-				OnSuccess: onSuccess,
-				OnFailure: onFailure,
-			},
-			expected: Settings{
-				Timeout:   time.Minute,
-				OnSuccess: onSuccess,
-				OnFailure: onFailure,
-			},
-		},
+	expected := Settings{
+		Timeout:   time.Second,
+		OnSuccess: defaultOnSuccess,
+		OnFailure: defaultOnFailure,
 	}
 
-	for name, testCase := range testCases {
-		testCase := testCase
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
+	var errDummy = errors.New("dummy")
 
-			testCase.initial.setDefaults()
+	assert.NotPanics(t, func() {
+		s.OnSuccess("group")
+		s.OnFailure("group", errDummy)
+	})
 
-			var errDummy = errors.New("dummy")
-
-			assert.NotPanics(t, func() {
-				testCase.initial.OnSuccess("group")
-				testCase.initial.OnFailure("group", errDummy)
-			})
-
-			assertSettingsEqual(t, &testCase.expected, &testCase.initial)
-		})
-	}
+	assertSettingsEqual(t, &expected, &s)
 }
 
 // asserts the Settings a and b are equal and clear the problematic fields
